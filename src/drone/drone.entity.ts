@@ -1,5 +1,3 @@
-// src/drones/drone.entity.ts
-import { Medication } from 'src/medication/medication.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -7,6 +5,7 @@ import {
   ManyToMany,
   JoinTable,
 } from 'typeorm';
+import { Medication } from '../medication/medication.entity';
 
 export enum DroneModel {
   LIGHTWEIGHT = 'lightweight',

@@ -1,18 +1,101 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MedicationService } from './medication.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Medication } from './medication.entity';
+import { Repository } from 'typeorm';
+import { NotFoundException } from '@nestjs/common';
 
 describe('MedicationService', () => {
   let service: MedicationService;
+  let repo: jest.Mocked<Repository<Medication>>;
+
+  const mockRepo = () =>
+    ({
+      create: jest.fn(),
+      save: jest.fn(),
+      find: jest.fn(),
+      findOne: jest.fn(),
+      findBy: jest.fn(),
+      delete: jest.fn(),
+      createQueryBuilder: jest.fn(() => ({
+        innerJoin: jest.fn().mockReturnThis(),
+        getMany: jest.fn(),
+      })),
+    }) as any;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [MedicationService],
+      providers: [
+        MedicationService,
+        { provide: getRepositoryToken(Medication), useFactory: mockRepo },
+      ],
     }).compile();
 
     service = module.get<MedicationService>(MedicationService);
+    repo = module.get(getRepositoryToken(Medication));
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('create', () => {
+    it('should create and save a medication', async () => {
+      const dto = { name: 'A', weight: 1, code: 'A1' };
+      const med = { ...dto } as Medication;
+      repo.create.mockReturnValue(med);
+      repo.save.mockResolvedValue(med);
+      expect(await service.create(dto as any)).toEqual(med);
+      expect(repo.create).toHaveBeenCalledWith(dto);
+      expect(repo.save).toHaveBeenCalledWith(med);
+    });
+  });
+
+  describe('findAll', () => {
+    it('should return all medications', async () => {
+      const meds = [{ id: '1' } as Medication];
+      repo.find.mockResolvedValue(meds);
+      expect(await service.findAll()).toEqual(meds);
+    });
+  });
+
+  describe('findByDrone', () => {
+    it('should return medications for a drone', async () => {
+      const getMany = jest.fn().mockResolvedValue([{ id: '1' }]);
+      repo.createQueryBuilder.mockReturnValue({
+        innerJoin: jest.fn().mockReturnThis(),
+        getMany,
+      } as any);
+      expect(await service.findByDrone('d1')).toEqual([{ id: '1' }]);
+    });
+  });
+
+  describe('findByIds', () => {
+    it('should return medications by ids', async () => {
+      const meds = [{ id: '1' } as Medication];
+      repo.findBy.mockResolvedValue(meds);
+      expect(await service.findByIds(['1'])).toEqual(meds);
+      //   expect(repo.findBy).toHaveBeenCalledWith({ id: ['1'] });
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return a medication by id', async () => {
+      const med = { id: '1' } as Medication;
+      repo.findOne.mockResolvedValue(med);
+      expect(await service.findOne('1')).toEqual(med);
+    });
+    it('should throw if not found', async () => {
+      repo.findOne.mockResolvedValue(null);
+      await expect(service.findOne('x')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('remove', () => {
+    it('should delete a medication', async () => {
+      repo.delete.mockResolvedValue({} as any);
+      await service.remove('1');
+      expect(repo.delete).toHaveBeenCalledWith('1');
+    });
   });
 });
