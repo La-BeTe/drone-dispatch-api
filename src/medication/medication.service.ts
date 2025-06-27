@@ -47,7 +47,7 @@ export class MedicationService {
   //   return this.repo.save(med);
   // }
 
-  //   async remove(id: string): Promise<void> {
-  //     await this.repo.delete(id);
-  //   }
+  async remove(id: string): Promise<void> {
+    await this.repo.delete(id);
+  }
 }

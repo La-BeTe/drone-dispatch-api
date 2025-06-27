@@ -137,4 +137,17 @@ export class DroneService {
     drone.medications = meds;
     return this.recordStateChange(drone, DroneState.LOADED);
   }
+
+  @Cron(CronExpression.EVERY_HOUR)
+  async handleBatteryAudit() {
+    const drones = await this.droneRepo.find();
+    const logs = drones.map((d) =>
+      this.auditRepo.create({
+        drone: d,
+        eventType: AuditEventType.BATTERY_CHECK,
+        metadata: { batteryLevel: d.batteryCapacity },
+      }),
+    );
+    await this.auditRepo.save(logs);
+  }
 }

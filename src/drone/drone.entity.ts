@@ -9,10 +9,10 @@ import {
 } from 'typeorm';
 
 export enum DroneModel {
-  LIGHTWEIGHT = 'Lightweight',
-  MIDDLEWEIGHT = 'Middleweight',
-  CRUISERWEIGHT = 'Cruiserweight',
-  HEAVYWEIGHT = 'Heavyweight',
+  LIGHTWEIGHT = 'lightweight',
+  MIDDLEWEIGHT = 'middleweight',
+  CRUISERWEIGHT = 'cruiserweight',
+  HEAVYWEIGHT = 'heavyweight',
 }
 
 export enum DroneState {

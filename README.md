@@ -1,98 +1,130 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Drone Dispatch API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This is a NestJS-based backend service that manages a fleet of medication-delivery drones. The API allows you to register drones, load them with medications, simulate delivery lifecycles, and audit both state changes and battery levels.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## 🔧 Features
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### Drone Management
 
-## Project setup
+- **Register a drone**: `POST /drones`
+- **List drones** with optional filters: `GET /drones?state=<state>|available&model=<model>&batteryCapacityMin=<value>`
+- **Get a single drone**: `GET /drones/:id`
+- **Query battery level**: `GET /drones/:id?info=battery`
 
-```bash
-$ npm install
-```
+### Delivery Workflow
 
-## Compile and run the project
+- **Load medications onto a drone**: `POST /drones/:id/load` (body: `{ medicationIds: string[] }`)
+  - Validates `batteryCapacity >= 25%` and `state === IDLE`
+  - Ensures total medication weight ≤ `weightLimit`
+- **Begin delivery**: `POST /drones/:id/deliver` (transitions `LOADED → DELIVERING → DELIVERED → RETURNING → IDLE` asynchronously)
+- **Manually complete delivery**: `POST /drones/:id/complete-delivery`
+- **Reset drone to idle**: `POST /drones/:id/unload`
 
-```bash
-# development
-$ npm run start
+### Medication Management
 
-# watch mode
-$ npm run start:dev
+- **Create a medication**: `POST /medications`
+- **List medications** or **filter by drone**: `GET /medications?droneId=<droneId>`
+- **Get a medication**: `GET /medications/:id`
+- **Delete a medication**: `DELETE /medications/:id`
 
-# production mode
-$ npm run start:prod
-```
+### Audit Logging
 
-## Run tests
+- All state changes and periodic battery checks are recorded in a single `AuditLog` table with flexible `metadata` for event details.
+- **Cron job** runs every hour to log battery levels automatically.
 
-```bash
-# unit tests
-$ npm run test
+### API Documentation (Swagger/OpenAPI)
 
-# e2e tests
-$ npm run test:e2e
+Available at: `GET /docs`
 
-# test coverage
-$ npm run test:cov
-```
+---
 
-## Deployment
+## 🚀 Getting Started Locally
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+### Prerequisites
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+- Node.js v16+
+- npm or Yarn
+- (Optional) Docker, if running a different database
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+### Installation
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+1. **Clone the repository**
 
-## Resources
+   ```bash
+   git clone <repo-url>
+   cd drone-dispatch-api-assessment
+   ```
 
-Check out a few resources that may come in handy when working with NestJS:
+2. **Install dependencies**
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+   ```bash
+   npm install
+   # or yarn install
+   ```
 
-## Support
+3. **Configure environment variables**
+   Create a `.env` file in the project root:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+   ```ini
+   DB_PATH=./db.sqlite
+   DB_SYNC=true
+   ```
 
-## Stay in touch
+4. **Build the project**
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+   ```bash
+   npm run build
+   ```
 
-## License
+5. **Seed the database with demo data**
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+   ```bash
+   node dist/seed.js
+   ```
+
+6. **Run the development server**
+
+   ```bash
+   npm run start:dev
+   ```
+
+   - The app will start on `http://localhost:3000`
+   - Swagger UI available at `http://localhost:3000/docs`
+
+7. **Interact with the API**
+   Use tools like curl, Postman, or Swagger UI to call the endpoints listed above.
+
+---
+
+## 📝 Scripts
+
+- `npm run start` — start in production mode
+- `npm run start:dev` — start in development mode with hot reload
+- `npm run build` — compile TypeScript to JavaScript
+- `node dist/seed.js` — seed the database with demo drones and medications
+
+---
+
+## 📦 Database
+
+- Uses **SQLite** by default via TypeORM (file: `./db.sqlite`)
+- Entities are synchronized automatically in development (`synchronize: true` in `TypeOrmModule`)
+- Seed script will clear and repopulate the database with 10 drones and several medications
+
+---
+
+## 🧪 Testing
+
+- Unit and e2e tests can be run with:
+  ```bash
+  npm run test
+  npm run test:e2e
+  ```
+
+---
+
+## 📖 License
+
+[MIT](LICENSE)
