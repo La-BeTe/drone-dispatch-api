@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { DroneService } from './drone.service';
 import { CreateDroneDto } from './dto/create-drone.dto';
 import { FindDroneDto } from './dto/find-drone.dto';
 import { Drone } from './drone.entity';
+import { UpdateDroneDto } from './dto/update-drone.dto';
 
 @Controller('drones')
 export class DroneController {
@@ -19,30 +20,15 @@ export class DroneController {
   }
 
   @Get(':id')
-  getOne(
-    @Param('id') id: string,
-    @Query('info') info?: string,
-  ): Promise<Drone | { battery: number }> {
-    if (info === 'battery') {
-      return this.droneService
-        .findBatteryLevel(id)
-        .then((battery) => ({ battery }));
-    }
+  findOne(@Param('id') id: string): Promise<Drone> {
     return this.droneService.findOne(id);
   }
 
-  @Post(':id/deliver')
-  deliver(@Param('id') id: string): Promise<Drone> {
-    return this.droneService.deliver(id);
-  }
-
-  @Post(':id/complete-delivery')
-  completeDelivery(@Param('id') id: string): Promise<Drone> {
-    return this.droneService.completeDelivery(id);
-  }
-
-  @Post(':id/unload')
-  unload(@Param('id') id: string): Promise<Drone> {
-    return this.droneService.unload(id);
+  @Put(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateDroneDto: UpdateDroneDto,
+  ): Promise<Drone> {
+    return this.droneService.update(id, updateDroneDto);
   }
 }

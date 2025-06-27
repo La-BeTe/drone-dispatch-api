@@ -1,5 +1,12 @@
 // src/drones/drone.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Medication } from 'src/medication/medication.entity';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
 
 export enum DroneModel {
   LIGHTWEIGHT = 'Lightweight',
@@ -36,4 +43,8 @@ export class Drone {
 
   @Column({ type: 'simple-enum', enum: DroneState, default: DroneState.IDLE })
   state: DroneState;
+
+  @ManyToMany(() => Medication, (med) => med.drones)
+  @JoinTable({ name: 'drone_medications' })
+  medications: Medication[];
 }

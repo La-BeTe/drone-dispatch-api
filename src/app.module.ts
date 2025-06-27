@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { AppController } from './app.controller';
 import { DroneModule } from './drone/drone.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MedicationModule } from './medication/medication.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }),
     }),
     DroneModule,
+    MedicationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
