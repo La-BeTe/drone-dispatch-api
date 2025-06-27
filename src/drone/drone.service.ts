@@ -70,9 +70,9 @@ export class DroneService {
   async update(id: string, updateDto: UpdateDroneDto): Promise<Drone> {
     const drone = await this.droneRepo.findOne({ where: { id } });
     if (!drone) throw new NotFoundException(`Drone ${id} not found`);
-    if (updateDto.state === DroneState.DELIVERING)
+    if (updateDto?.state?.toUpperCase() === DroneState.DELIVERING)
       return this.initiateDelivery(drone);
-    if (updateDto.state === DroneState.DELIVERED)
+    if (updateDto?.state?.toUpperCase() === DroneState.DELIVERED)
       return this.completeDelivery(drone);
     return drone;
   }

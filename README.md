@@ -9,18 +9,15 @@ This is a NestJS-based backend service that manages a fleet of medication-delive
 ### Drone Management
 
 - **Register a drone**: `POST /drones`
-- **List drones** with optional filters: `GET /drones?state=<state>|available&model=<model>&batteryCapacityMin=<value>`
+- **List drones** with optional filters: `GET /drones?state=<state>|available&model=<model>`
 - **Get a single drone**: `GET /drones/:id`
-- **Query battery level**: `GET /drones/:id?info=battery`
 
 ### Delivery Workflow
 
 - **Load medications onto a drone**: `POST /drones/:id/load` (body: `{ medicationIds: string[] }`)
   - Validates `batteryCapacity >= 25%` and `state === IDLE`
   - Ensures total medication weight ≤ `weightLimit`
-- **Begin delivery**: `POST /drones/:id/deliver` (transitions `LOADED → DELIVERING → DELIVERED → RETURNING → IDLE` asynchronously)
-- **Manually complete delivery**: `POST /drones/:id/complete-delivery`
-- **Reset drone to idle**: `POST /drones/:id/unload`
+- **Begin/Complete delivery**: `PUT /drones/:id` (transitions `LOADED → DELIVERING → DELIVERED → RETURNING → IDLE` asynchronously)
 
 ### Medication Management
 
@@ -53,7 +50,7 @@ Available at: `GET /docs`
 1. **Clone the repository**
 
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/La-BeTe/drone-dispatch-api-assessment.git
    cd drone-dispatch-api-assessment
    ```
 

@@ -1,7 +1,7 @@
-import { IsEnum } from 'class-validator';
+import { IsIn } from 'class-validator';
 import { DroneState } from '../drone.entity';
 
 export class UpdateDroneDto {
-  @IsEnum(DroneState)
+  @IsIn([DroneState.DELIVERED, DroneState.DELIVERING])
   state: DroneState;
 }
