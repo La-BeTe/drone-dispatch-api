@@ -1,11 +1,11 @@
-import { IsArray, ArrayNotEmpty, ArrayUnique, IsUUID } from 'class-validator';
+import { IsArray, ArrayNotEmpty, ArrayUnique, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class LoadDroneDto {
-  @ApiProperty({ type: [String], description: 'Array of medication UUIDs' })
+  @ApiProperty({ type: [String], description: 'Array of medication codes' })
   @IsArray()
   @ArrayNotEmpty()
   @ArrayUnique()
-  @IsUUID('4', { each: true })
-  medicationIds: string[];
+  @IsString({ each: true })
+  medicationCodes: string[];
 }

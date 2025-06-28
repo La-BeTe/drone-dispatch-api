@@ -39,9 +39,4 @@ export class CreateMedicationDto {
   @IsString()
   @ApiPropertyOptional({ description: 'Image URL' })
   image?: string;
-
-  @IsOptional()
-  @IsUUID()
-  @ApiPropertyOptional({ description: 'Drone UUID' })
-  droneId?: string;
 }
