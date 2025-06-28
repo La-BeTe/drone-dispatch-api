@@ -19,11 +19,14 @@ describe('MedicationService', () => {
 			delete: jest.fn(),
 			createQueryBuilder: jest.fn(() => ({
 				innerJoin: jest.fn().mockReturnThis(),
+				skip: jest.fn().mockReturnThis(),
+				take: jest.fn().mockReturnThis(),
 				delete: jest.fn().mockReturnThis(),
 				from: jest.fn().mockReturnThis(),
 				where: jest.fn().mockReturnThis(),
 				execute: jest.fn(),
 				getMany: jest.fn(),
+				getCount: jest.fn(),
 			})),
 		}) as any;
 
@@ -59,10 +62,73 @@ describe('MedicationService', () => {
 	});
 
 	describe('findAll', () => {
-		it('should return all medications', async () => {
+		it('should return all medications with pagination', async () => {
 			const meds = [{ id: '1' } as Medication];
-			repo.find.mockResolvedValue(meds);
-			expect(await service.findAll()).toEqual(meds);
+			const getMany = jest.fn().mockResolvedValue(meds);
+			const getCount = jest.fn().mockResolvedValue(1);
+			repo.createQueryBuilder.mockReturnValue({
+				innerJoin: jest.fn().mockReturnThis(),
+				skip: jest.fn().mockReturnThis(),
+				take: jest.fn().mockReturnThis(),
+				getMany,
+				getCount,
+			} as any);
+
+			const result = await service.findAll({});
+			expect(result).toEqual({
+				data: meds,
+				meta: {
+					page: 1,
+					limit: 10,
+					total: 1,
+					totalPages: 1,
+					hasNextPage: false,
+					hasPrevPage: false,
+				},
+			});
+		});
+
+		it('should filter medications by droneId', async () => {
+			const meds = [{ id: '1' } as Medication];
+			const getMany = jest.fn().mockResolvedValue(meds);
+			const getCount = jest.fn().mockResolvedValue(1);
+			repo.createQueryBuilder.mockReturnValue({
+				innerJoin: jest.fn().mockReturnThis(),
+				skip: jest.fn().mockReturnThis(),
+				take: jest.fn().mockReturnThis(),
+				getMany,
+				getCount,
+			} as any);
+
+			const result = await service.findAll({ droneId: 'drone-123' });
+			expect(result.data).toEqual(meds);
+			expect(repo.createQueryBuilder).toHaveBeenCalledWith('med');
+		});
+
+		it('should handle pagination parameters correctly', async () => {
+			const meds = [{ id: '1' }, { id: '2' }] as Medication[];
+			const getMany = jest.fn().mockResolvedValue(meds);
+			const getCount = jest.fn().mockResolvedValue(25);
+			repo.createQueryBuilder.mockReturnValue({
+				innerJoin: jest.fn().mockReturnThis(),
+				skip: jest.fn().mockReturnThis(),
+				take: jest.fn().mockReturnThis(),
+				getMany,
+				getCount,
+			} as any);
+
+			const result = await service.findAll({ page: 2, limit: 5 });
+			expect(result).toEqual({
+				data: meds,
+				meta: {
+					page: 2,
+					limit: 5,
+					total: 25,
+					totalPages: 5,
+					hasNextPage: true,
+					hasPrevPage: true,
+				},
+			});
 		});
 	});
 

@@ -58,7 +58,7 @@ describe('MedicationController', () => {
 	});
 
 	describe('findAll', () => {
-		it('should return all medications', async () => {
+		it('should return all medications with pagination', async () => {
 			const meds = [
 				{
 					id: '1',
@@ -69,11 +69,60 @@ describe('MedicationController', () => {
 					drones: [],
 				},
 			];
-			service.findAll.mockResolvedValue(meds);
-			expect(await controller.findAll(undefined)).toEqual(meds);
-			expect(service.findAll).toHaveBeenCalled();
+			const paginatedResponse = {
+				data: meds,
+				meta: {
+					page: 1,
+					limit: 10,
+					total: 1,
+					totalPages: 1,
+					hasNextPage: false,
+					hasPrevPage: false,
+				},
+			};
+			service.findAll.mockResolvedValue(paginatedResponse);
+			expect(await controller.findAll({})).toEqual(paginatedResponse);
+			expect(service.findAll).toHaveBeenCalledWith({});
 		});
-		it('should return medications by drone', async () => {
+
+		it('should handle pagination parameters', async () => {
+			const meds = [
+				{
+					id: '1',
+					name: 'A',
+					weight: 1,
+					code: 'A1',
+					image: '',
+					drones: [],
+				},
+				{
+					id: '2',
+					name: 'B',
+					weight: 2,
+					code: 'B2',
+					image: '',
+					drones: [],
+				},
+			];
+			const paginatedResponse = {
+				data: meds,
+				meta: {
+					page: 2,
+					limit: 5,
+					total: 25,
+					totalPages: 5,
+					hasNextPage: true,
+					hasPrevPage: true,
+				},
+			};
+			service.findAll.mockResolvedValue(paginatedResponse);
+			expect(await controller.findAll({ page: 2, limit: 5 })).toEqual(
+				paginatedResponse,
+			);
+			expect(service.findAll).toHaveBeenCalledWith({ page: 2, limit: 5 });
+		});
+
+		it('should filter medications by droneId', async () => {
 			const meds = [
 				{
 					id: '1',
@@ -84,9 +133,24 @@ describe('MedicationController', () => {
 					drones: [],
 				},
 			];
-			service.findByDrone.mockResolvedValue(meds);
-			expect(await controller.findAll('d1')).toEqual(meds);
-			expect(service.findByDrone).toHaveBeenCalledWith('d1');
+			const paginatedResponse = {
+				data: meds,
+				meta: {
+					page: 1,
+					limit: 10,
+					total: 1,
+					totalPages: 1,
+					hasNextPage: false,
+					hasPrevPage: false,
+				},
+			};
+			service.findAll.mockResolvedValue(paginatedResponse);
+			expect(await controller.findAll({ droneId: 'drone-123' })).toEqual(
+				paginatedResponse,
+			);
+			expect(service.findAll).toHaveBeenCalledWith({
+				droneId: 'drone-123',
+			});
 		});
 	});
 

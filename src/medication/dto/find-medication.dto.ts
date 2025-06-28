@@ -1,33 +1,40 @@
-import {
-  IsString,
-  MaxLength,
-  Matches,
-  IsNumber,
-  Min,
-  IsOptional,
-  IsUUID,
-} from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsString, IsInt, Min, Max, IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class FindMedicationDto {
-  @IsString()
-  @MaxLength(100)
-  @Matches(/^[A-Za-z0-9_-]+$/)
-  name: string;
+	@ApiPropertyOptional({
+		description: 'Filter by drone UUID',
+		example: '123e4567-e89b-12d3-a456-426614174000',
+	})
+	@IsOptional()
+	@IsString()
+	@IsUUID()
+	droneId?: string;
 
-  @IsNumber()
-  @Min(0)
-  weight: number;
+	@ApiPropertyOptional({
+		description: 'Page number (starts from 1)',
+		minimum: 1,
+		default: 1,
+		example: 1,
+	})
+	@IsOptional()
+	@Type(() => Number)
+	@IsInt()
+	@Min(1)
+	page?: number = 1;
 
-  @IsString()
-  @MaxLength(100)
-  @Matches(/^[A-Z0-9_]+$/)
-  code: string;
-
-  @IsOptional()
-  @IsString()
-  image?: string;
-
-  @IsOptional()
-  @IsUUID()
-  droneId?: string;
+	@ApiPropertyOptional({
+		description: 'Number of items per page',
+		minimum: 1,
+		maximum: 100,
+		default: 10,
+		example: 10,
+	})
+	@IsOptional()
+	@Type(() => Number)
+	@IsInt()
+	@Min(1)
+	@Max(100)
+	limit?: number = 10;
 }

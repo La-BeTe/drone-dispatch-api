@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { MedicationService } from './medication.service';
 import { CreateMedicationDto } from './dto/create-medication.dto';
+import { FindMedicationDto } from './dto/find-medication.dto';
 import {
 	ApiTags,
 	ApiOperation,
@@ -38,16 +39,33 @@ export class MedicationController {
 	}
 
 	@Get()
-	@ApiOperation({ summary: 'Get all medications or by droneId' })
+	@ApiOperation({
+		summary:
+			'Get all medications with pagination and optional drone filtering',
+	})
 	@ApiQuery({
 		name: 'droneId',
 		required: false,
 		description: 'Filter by drone UUID',
 	})
-	@ApiResponse({ status: 200, description: 'List of medications.' })
-	findAll(@Query('droneId') droneId?: string) {
-		if (droneId) return this.medsService.findByDrone(droneId);
-		return this.medsService.findAll();
+	@ApiQuery({
+		name: 'page',
+		required: false,
+		description: 'Page number (starts from 1)',
+		type: Number,
+	})
+	@ApiQuery({
+		name: 'limit',
+		required: false,
+		description: 'Number of items per page (max 100)',
+		type: Number,
+	})
+	@ApiResponse({
+		status: 200,
+		description: 'Paginated list of medications with metadata.',
+	})
+	findAll(@Query() filter: FindMedicationDto) {
+		return this.medsService.findAll(filter);
 	}
 
 	@Get(':id')

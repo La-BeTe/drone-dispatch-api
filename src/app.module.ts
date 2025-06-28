@@ -25,7 +25,10 @@ import { MedicationModule } from './medication/medication.module';
 					__dirname + '/data/db.sqlite',
 				),
 				entities: [__dirname + '/**/*.entity.{ts,js}'],
-				synchronize: cfg.get<boolean>('DB_SYNC', false),
+				synchronize:
+					cfg.get<string>('NODE_ENV', 'development') === 'development'
+						? cfg.get<boolean>('DB_SYNC', true)
+						: false,
 			}),
 		}),
 		DroneModule,

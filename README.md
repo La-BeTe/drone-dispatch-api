@@ -71,7 +71,7 @@ The Drone Dispatch API is designed to:
 
 ```bash
 # Clone the repository
-git clone https://github.com/La-BeTe/drone-dispatch-api-assessment.git
+git clone https://github.com/La-BeTe/drone-dispatch-api.git
 cd drone-dispatch-api
 
 # Install dependencies
@@ -100,18 +100,19 @@ npm run start
 
 ## 📚 API Endpoints
 
-| Method     | Path               | Description                 | Parameters                                                |
-| ---------- | ------------------ | --------------------------- | --------------------------------------------------------- |
-| **POST**   | `/drones`          | Register a new drone        | `serialNumber`, `model`, `weightLimit`, `batteryCapacity` |
-| **GET**    | `/drones`          | List drones with pagination | `state`, `model`, `page`, `limit`                         |
-| **GET**    | `/drones/:id`      | Get drone details           | `id` (path parameter)                                     |
-| **PATCH**  | `/drones/:id`      | Update drone state/battery  | `state`, `batteryCapacity`                                |
-| **POST**   | `/drones/:id/load` | Load drone with medications | `medicationCodes`                                         |
-| **GET**    | `/medications`     | List all medications        | `droneId` (optional query)                                |
-| **POST**   | `/medications`     | Create a medication         | `name`, `weight`, `code`, `image`                         |
-| **GET**    | `/medications/:id` | Get medication details      | `id` (path parameter)                                     |
-| **PATCH**  | `/medications/:id` | Update medication details   | `name`, `weight`, `code`, `image`                         |
-| **DELETE** | `/medications/:id` | Delete a medication         | `id` (path parameter)                                     |
+| Method     | Path                  | Description                      | Parameters                                                |
+| ---------- | --------------------- | -------------------------------- | --------------------------------------------------------- |
+| **POST**   | `/drones`             | Register a new drone             | `serialNumber`, `model`, `weightLimit`, `batteryCapacity` |
+| **GET**    | `/drones`             | List drones with pagination      | `state`, `model`, `page`, `limit`                         |
+| **GET**    | `/drones/:id`         | Get drone details                | `id` (path parameter)                                     |
+| **PATCH**  | `/drones/:id`         | Update drone state/battery       | `state`, `batteryCapacity`                                |
+| **POST**   | `/drones/:id/load`    | Load drone with medications      | `medicationCodes`                                         |
+| **GET**    | `/drones/:id/battery` | Get drone battery level          | `id` (path parameter)                                     |
+| **GET**    | `/medications`        | List medications with pagination | `droneId`, `page`, `limit`                                |
+| **POST**   | `/medications`        | Create a medication              | `name`, `weight`, `code`, `image`                         |
+| **GET**    | `/medications/:id`    | Get medication details           | `id` (path parameter)                                     |
+| **PATCH**  | `/medications/:id`    | Update medication details        | `name`, `weight`, `code`, `image`                         |
+| **DELETE** | `/medications/:id`    | Delete a medication              | `id` (path parameter)                                     |
 
 ### Response Format
 
@@ -187,13 +188,7 @@ PORT=3000
 
 # Database Configuration
 DB_PATH=./data/db.sqlite
-TYPEORM_SYNCHRONIZE=true
-
-# Swagger Configuration
-SWAGGER_PATH=/api
-
-# Cron Configuration
-BATTERY_CHECK_INTERVAL=0 * * * * *  # Every hour
+DB_SYNC=true
 ```
 
 ### Environment Variables
@@ -202,7 +197,7 @@ BATTERY_CHECK_INTERVAL=0 * * * * *  # Every hour
 | --------- | ------------------------- | ------------------ |
 | `PORT`    | Server port               | `3000`             |
 | `DB_PATH` | SQLite database path      | `./data/db.sqlite` |
-| `DB_SYNC` | Auto-sync database schema | `false`            |
+| `DB_SYNC` | Auto-sync database schema | `true`             |
 
 ---
 

@@ -4,6 +4,7 @@ import { In, Repository } from 'typeorm';
 import { Medication } from './medication.entity';
 import { CreateMedicationDto } from './dto/create-medication.dto';
 import { UpdateMedicationDto } from './dto/update-medication.dto';
+import { FindMedicationDto } from './dto/find-medication.dto';
 
 @Injectable()
 export class MedicationService {
@@ -21,8 +22,40 @@ export class MedicationService {
 		return this.repo.save(medications);
 	}
 
-	async findAll(): Promise<Medication[]> {
-		return this.repo.find();
+	async findAll(
+		filter: FindMedicationDto,
+	): Promise<{ data: Medication[]; meta: any }> {
+		const qb = this.repo.createQueryBuilder('med');
+
+		if (filter.droneId) {
+			qb.innerJoin('med.drones', 'drone', 'drone.id = :droneId', {
+				droneId: filter.droneId,
+			});
+		}
+
+		const total = await qb.getCount();
+		const page = filter.page || 1;
+		const limit = filter.limit || 10;
+		const offset = (page - 1) * limit;
+
+		qb.skip(offset).take(limit);
+
+		const data = await qb.getMany();
+		const totalPages = Math.ceil(total / limit);
+		const hasNextPage = page < totalPages;
+		const hasPrevPage = page > 1;
+
+		return {
+			data,
+			meta: {
+				page,
+				limit,
+				total,
+				totalPages,
+				hasNextPage,
+				hasPrevPage,
+			},
+		};
 	}
 
 	async findByDrone(droneId: string): Promise<Medication[]> {
